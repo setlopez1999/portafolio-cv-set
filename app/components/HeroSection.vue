@@ -131,8 +131,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
- 
-  
+  transition: transform 0.5s;
   
 }
 
