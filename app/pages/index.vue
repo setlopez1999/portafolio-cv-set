@@ -6,7 +6,7 @@
       description="Creo soluciones multiplataforma combinando logica, diseño y tecnologia."
       :buttons="[
         { text: 'Ver Proyectos', action: 'scroll', target: 'proyectos' },
-        { text: 'Descargar CV', href: '/doc/CV_Set Lopez_2025', download: true }
+        { text: 'Descargar CV', href: '/doc/CV_Set_Lopez_2025.pdf', download: true }
       ]"
       :techList="techList"
     />

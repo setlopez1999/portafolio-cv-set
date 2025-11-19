@@ -19,7 +19,7 @@
         <a
           v-else-if="btn.href"
           :href="btn.href"
-          :download="btn.download"
+          download
           class="btn secondary"
         >
           {{ btn.text }}
