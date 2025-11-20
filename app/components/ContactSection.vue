@@ -2,7 +2,8 @@
   <section id="contacto" class="centred min-h-screen px-16 py-20">
     <h2 class="text-4xl font-bold text-green-400 mb-6">Contacto</h2>
     <p class="text-gray-300 text-lg">Email: {{ email }}</p>
-    <p class="text-gray-300 text-lg">Linkedln: <a href={{ linkedlnsource }}>{{ linkedlnsource }}</a></p>
+    <p class="text-gray-300 text-lg">Linkedln: <a :href="linkedlnsource" >{{ linkedlnsource }}</a>
+    </p>
   </section>
 </template>
 
