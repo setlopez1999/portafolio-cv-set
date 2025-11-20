@@ -7,6 +7,8 @@
       :buttons="[
         { text: 'Ver Proyectos', action: 'scroll', target: 'proyectos' },
         { text: 'Descargar CV', href: '/doc/CV_Set_Lopez_2025.pdf', download: true }
+        //{ text: 'Diseño y Arte', href: '/doc/CV_Set_Lopez_2025.pdf', target: 'proyectos' },
+        //{ text: 'Game Development', href: '/doc/CV_Set_Lopez_2025.pdf', target: 'proyectos' }
       ]"
       :techList="techList"
     />
