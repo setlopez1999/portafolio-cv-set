@@ -2,7 +2,7 @@
   <div class="page">
     <HeroSection
       name="Set Carlos Lopez Quispe"
-      subtitle=" Web & Mobile Developer Frontend"
+      subtitle=" Web &amp; Mobile Developer Frontend"
       description="Creo soluciones multiplataforma combinando logica, diseño y tecnologia."
       :buttons="[
         { text: 'See Projects', action: 'scroll', target: 'proyectos' },
