@@ -26,7 +26,16 @@
         </a>
       </template>
     </div>
-
+    <div class="hero-skills">
+      <template v-for="(btn) in buttons">
+        <a
+        v-if="btn.action === 'route'"
+        :href="btn.target"
+        class="btn">
+          {{ btn.text }}
+        </a>
+      </template>
+    </div>
     <!-- Botones laterales -->
     <div class="tech-side left">
       <div v-for="tech in techList.slice(0, Math.ceil(techList.length/2))" :key="tech.name" class="tech-item">
@@ -111,13 +120,15 @@ onMounted(() => {
 }
 
 .tech-side.left {
-  left: 10px;
+  bottom: -1%;
+  left: 1%;
   justify-content: start;
   direction: ltr;
 }
 
 .tech-side.right {
-  right: 10px;
+  bottom: -1%;
+  right: 1%;
   justify-self: end;
   direction: rtl;
 }
@@ -180,7 +191,7 @@ onMounted(() => {
 }
 .description {
   max-width: 600px;
-  margin: 20px auto;
+  margin: auto;
   opacity: 0.8;
 }
 .hero-buttons {
@@ -190,6 +201,13 @@ onMounted(() => {
   gap: 20px;
   flex-wrap: wrap; /* que los botones no se salgan en pantallas pequeñas */
 }
+.hero-skills {
+  margin: 50px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
 .btn {
   padding: 12px 25px;
   background: rgb(46, 204, 113);

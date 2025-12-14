@@ -43,13 +43,13 @@ const projects = ref([
     link: "https://github.com/setlopez1999/AppMovil2025",
     img: "/img/odontologia.png"
   },
-  {
+/*  {
     title: "Cine Ultimate",
     desc: "JSP + Servlets",
     tech: "Java Web",
     link: "https://github.com/victovictorio00/CINE_ULTIMATE",
     img: "/img/cine.png"
-  },
+  },*/
   {
     title: "AppRoute",
     desc: "React Native + API",

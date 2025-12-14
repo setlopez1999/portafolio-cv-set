@@ -2,13 +2,15 @@
   <div class="page">
     <HeroSection
       name="Set Carlos Lopez Quispe"
-      subtitle="Desarrollador FullStack & Mobile"
+      subtitle=" Web & Mobile Developer Frontend"
       description="Creo soluciones multiplataforma combinando logica, diseño y tecnologia."
       :buttons="[
-        { text: 'Ver Proyectos', action: 'scroll', target: 'proyectos' },
-        { text: 'Descargar CV', href: '/doc/CV_Set_Lopez_2025.pdf', download: true }
-        //{ text: 'Diseño y Arte', href: '/doc/CV_Set_Lopez_2025.pdf', target: 'proyectos' },
-        //{ text: 'Game Development', href: '/doc/CV_Set_Lopez_2025.pdf', target: 'proyectos' }
+        { text: 'See Projects', action: 'scroll', target: 'proyectos' },
+        { text: 'Download CV', href: '/doc/CV_Set_Lopez_2025.pdf', download: true },
+        { text: 'WEB', action: 'route', target: 'proyectos' },
+        { text: 'APP', action: 'route', target: 'proyectos' },
+        { text: 'GAMES', action: 'route', target: 'proyectos' },
+        { text: 'DESING', action: 'route', target: 'proyectos' }
       ]"
       :techList="techList"
     />
@@ -91,7 +93,7 @@ const techList = [
 .page {
   width: 100%;
   padding: 20px;
-  color: white;
+  color: rgb(255, 255, 255);
   font-family: Arial;
   overflow-x: hidden;
   box-sizing: border-box;
