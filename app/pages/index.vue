@@ -6,11 +6,7 @@
       description="Creo soluciones multiplataforma combinando logica, diseño y tecnologia."
       :buttons="[
         { text: 'See Projects', action: 'scroll', target: 'proyectos' },
-        { text: 'Download CV', href: '/doc/CV_Set_Lopez_2025.pdf', download: true },
-        { text: 'WEB', action: 'route', target: 'proyectos' },
-        { text: 'APP', action: 'route', target: 'proyectos' },
-        { text: 'GAMES', action: 'route', target: 'proyectos' },
-        { text: 'DESING', action: 'route', target: 'proyectos' }
+        { text: 'Download CV', href: '/doc/CV_Set_Lopez_2025.pdf', download: true }
       ]"
       :techList="techList"
     />
@@ -18,11 +14,11 @@
     <AboutSection
       title="Sobre mi"
       :content="[
-        'Desarrollador FullStack & Mobile con experiencia creando interfaces modernas, dinámicas y modulares usando Vue 3, Nuxt y React Native.',
-        'Aprendizajes de Frontend: Diseños en Figma, diseño responsivo, animaciones con GSAP, scroll sincronizado, gestión de estados y optimización de interfaces.',
-        'Librerías de JavaScript y herramientas: Chart.js, Babylon.js, TypeIt, Axios, Retrofit y Room para integrar funcionalidades avanzadas y datos dinámicos.',
-        'Patrones y arquitecturas: MVC, MVVM, Clean Architecture, integración de APIs RESTful y modularidad en proyectos tanto web como móviles.',
-        'Backend y bases de datos: MySQL, JPA/EntityManager, procedimientos almacenados, sincronización con Room, y manejo seguro de datos en aplicaciones Android.'
+        'Soy desarrollador Full Stack y Mobile enfocado en crear aplicaciones prácticas, eficientes y bien estructuradas.',
+        'Trabajo principalmente con Flutter, Java, JavaScript y tecnologías web modernas. Me interesa construir soluciones que no solo funcionen, sino que sean claras, mantenibles y pensadas para el usuario final.',
+        'Disfruto aprender nuevas herramientas, mejorar mis proyectos de forma iterativa y enfrentar retos técnicos que me permitan crecer como desarrollador.'
+
+
       ]"
     />
 
@@ -86,6 +82,19 @@ const techList = [
   { name: 'Expo', icon: 'devicon-expo' }
 ]
 
+
+/* Asi estara los botnes pero todavia no
+
+      :buttons="[
+        { text: 'See Projects', action: 'scroll', target: 'proyectos' },
+        { text: 'Download CV', href: '/doc/CV_Set_Lopez_2025.pdf', download: true },
+        { text: 'WEB', action: 'route', target: 'web' },
+        { text: 'APP', action: 'route', target: 'app' },
+        { text: 'GAMES', action: 'route', target: 'games' },
+        { text: 'DESING', action: 'route', target: 'desing' }
+      ]"
+
+*/
 
 </script>
 

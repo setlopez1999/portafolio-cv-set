@@ -43,6 +43,13 @@ const projects = ref([
     link: "https://github.com/setlopez1999/AppMovil2025",
     img: "/img/odontologia.png"
   },
+  {
+    title: "Menouts - App de Notas",
+    desc: "App de notas offline con exportación e importación de backups",
+    tech: "Flutter, Hive, JSON, Android",
+    link: "https://github.com/setlopez1999/menoute",
+    img: "/img/menouts.png"
+  },
 /*  {
     title: "Cine Ultimate",
     desc: "JSP + Servlets",
