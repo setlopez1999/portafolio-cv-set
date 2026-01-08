@@ -44,11 +44,11 @@ const projects = ref([
     img: "/img/odontologia.png"
   },
   {
-    title: "Menouts - App de Notas",
-    desc: "App de notas offline con exportación e importación de backups",
-    tech: "Flutter, Hive, JSON, Android",
-    link: "https://github.com/setlopez1999/menoute",
-    img: "/img/menouts.png"
+    title: "MyNouts - App de Notas",
+    desc: "App de notas con arquitectura de capas y buenas prácticas.",
+    tech: "Flutter, Riverpod, DB Drift, Android",
+    link: "https://github.com/setlopez1999/Reto-Mynouts",
+    img: "/img/menouts.gif"
   },
 /*  {
     title: "Cine Ultimate",
