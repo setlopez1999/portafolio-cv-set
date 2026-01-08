@@ -14,8 +14,8 @@
     <AboutSection
       title="Sobre mi"
       :content="[
-        'Soy desarrollador Full Stack y Mobile enfocado en crear aplicaciones prácticas, eficientes y bien estructuradas.',
-        'Trabajo principalmente con Flutter, Java, JavaScript y tecnologías web modernas. Me interesa construir soluciones que no solo funcionen, sino que sean claras, mantenibles y pensadas para el usuario final.',
+        'Soy Developer Frontend & Mobile enfocado en crear aplicaciones prácticas, eficientes y bien estructuradas.',
+        'Trabajo principalmente con React Native, Flutter, Java y librerias de tecnología web modernas. Me interesa construir soluciones que no solo funcionen, sino que sean claras, mantenibles y pensadas para el usuario final.',
         'Disfruto aprender nuevas herramientas, mejorar mis proyectos de forma iterativa y enfrentar retos técnicos que me permitan crecer como desarrollador.'
 
 
