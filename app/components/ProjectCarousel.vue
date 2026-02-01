@@ -61,7 +61,7 @@ const projects = ref([
     title: "AppRoute",
     desc: "React Native + API",
     tech: "React Native",
-    link: "https://github.com/HanselChavez/AppRoute",
+    link: "https://github.com/setlopez1999/AppRoute",
     img: "/img/approute.png"
   }
 ])
