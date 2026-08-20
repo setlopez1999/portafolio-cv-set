@@ -1,0 +1,34 @@
+<svg width="900" height="480" viewBox="0 0 900 480" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Líneas urbanas de Lima</title>
+  <desc id="desc">Ilustración abstracta y transparente de una ciudad formada por líneas blancas.</desc>
+  <g stroke="white" stroke-opacity="0.82" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M54 385H842" />
+    <path d="M83 385V248L150 214L211 248V385" />
+    <path d="M117 385V276H180V385" />
+    <path d="M242 385V176L294 145L343 176V385" />
+    <path d="M269 385V211H316V385" />
+    <path d="M367 385V229L409 190L455 229V385" />
+    <path d="M391 385V260H433V385" />
+    <path d="M493 385V126L556 89L622 126V385" />
+    <path d="M523 385V157H588V385" />
+    <path d="M662 385V198L707 165L758 198V385" />
+    <path d="M690 385V226H736V385" />
+    <path d="M104 248L104 215L137 193L137 232" />
+    <path d="M265 176V135L294 113L322 135V176" />
+    <path d="M512 126V73L556 42L602 73V126" />
+    <path d="M680 198V156L708 135L741 156V198" />
+    <path d="M54 410H842" />
+    <path d="M92 430H785" stroke-opacity="0.3" />
+    <path d="M151 385C151 356 169 336 188 336C207 336 225 356 225 385" />
+    <path d="M442 385C442 350 465 327 489 327C513 327 536 350 536 385" />
+    <path d="M610 385C610 356 629 340 648 340C667 340 686 356 686 385" />
+    <path d="M190 410C206 391 222 388 238 410" />
+    <path d="M560 410C576 391 592 388 608 410" />
+  </g>
+  <g fill="white" fill-opacity="0.74">
+    <circle cx="151" cy="257" r="2.5" />
+    <circle cx="294" cy="189" r="2.5" />
+    <circle cx="556" cy="138" r="2.5" />
+    <circle cx="707" cy="209" r="2.5" />
+  </g>
+</svg>

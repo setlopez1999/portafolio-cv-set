@@ -4,19 +4,12 @@
   </NuxtLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 useHead({
-  htmlAttrs: { class: 'scroll-smooth' }
-});
+  htmlAttrs: { lang: 'es', class: 'scroll-smooth' },
+  meta: [
+    { name: 'theme-color', content: '#050807' },
+    { name: 'description', content: 'Portafolio de Set Carlos Lopez Quispe, Software Developer especializado en frontend, mobile y APIs.' },
+  ],
+})
 </script>
-
-<style>
-html {
-  scroll-behavior: smooth;
-
-}
-body{
-  margin: 0;
-}
-
-</style>

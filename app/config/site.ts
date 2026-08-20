@@ -1,0 +1,22 @@
+export const siteConfig = {
+  name: 'Set Carlos Lopez Quispe',
+  shortName: 'Set Carlos',
+  role: 'Software Developer',
+  roleDetail: 'Frontend · Mobile · APIs · Backend Integration',
+  location: 'Lima, Perú',
+  email: 'setcarlos.2511@gmail.com',
+  linkedin: 'https://www.linkedin.com/in/setlopez/',
+  github: 'https://github.com/setlopez1999',
+  portfolio: 'https://portafolio-cv-set.vercel.app/',
+  cvUrl: '/doc/CV_Set_Lopez_2025.pdf',
+  profileImage: '',
+  cityArt: '/art/lima-lines.svg',
+  cityArtFallback: '',
+  themePreset: 'emerald-night',
+  hero: {
+    eyebrow: 'Frontend · Mobile · APIs',
+    description: 'Construyo productos digitales con interfaces claras, experiencias móviles y soluciones que conectan diseño, código y usuario.',
+    ctaLabel: 'Explorar portafolio',
+    cvLabel: 'Ver CV',
+  },
+}
