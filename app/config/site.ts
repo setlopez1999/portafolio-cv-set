@@ -9,7 +9,7 @@ export const siteConfig = {
   github: 'https://github.com/setlopez1999',
   portfolio: 'https://portafolio-cv-set.vercel.app/',
   cvUrl: '/doc/CV_Set_Lopez_2025.pdf',
-  profileImage: '',
+  profileImage: '/media/profile.png',
   cityArt: '/art/lima-lines.svg',
   cityArtFallback: '',
   themePreset: 'emerald-night',
