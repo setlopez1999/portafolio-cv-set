@@ -6,18 +6,34 @@
     <div ref="particlesRef" class="lamp-hero__particles" aria-hidden="true">
       <span v-for="particle in 8" :key="particle"></span>
     </div>
-    <div class="lamp-hero__aurora" aria-hidden="true"></div>
+      <div class="lamp-hero__aurora" aria-hidden="true"></div>
+
+    <svg style="width:0;height:0;position:absolute;" aria-hidden="true">
+      <defs>
+        <linearGradient id="rope-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--color-text-muted)" />
+          <stop offset="100%" stop-color="rgba(158, 181, 166, 0.35)" />
+        </linearGradient>
+      </defs>
+    </svg>
 
     <div ref="lampRef" class="lamp" :class="{ 'is-pulling': isPulling }">
       <div class="lamp__shade" aria-hidden="true"><span></span></div>
-      <div ref="cordRef" class="lamp__cord" :style="{ '--pull-distance': `${pullDistance}px` }" aria-hidden="true"></div>
+      <svg class="lamp__rope" :style="ropeStyle" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path class="lamp__rope-path" :d="ropePath" />
+      </svg>
       <button
         ref="handleRef"
         class="lamp__handle"
+        :style="handleStyle"
         type="button"
         aria-label="Jalar la lámpara para encender la presentación"
         @pointerdown="startPull"
-        @click="ignite"
+        @pointermove="movePull"
+        @pointerup="endPull"
+        @pointercancel="cancelPull"
+        @click="handleClick"
+        @dragstart.prevent
         @keydown.enter.prevent="ignite"
         @keydown.space.prevent="ignite"
       >
@@ -72,59 +88,168 @@ const beamRef = ref<HTMLElement | null>(null)
 const ambientRef = ref<HTMLElement | null>(null)
 const particlesRef = ref<HTMLElement | null>(null)
 const lampRef = ref<HTMLElement | null>(null)
-const cordRef = ref<HTMLElement | null>(null)
 const handleRef = ref<HTMLButtonElement | null>(null)
 const contentRef = ref<HTMLElement | null>(null)
 const copyRef = ref<HTMLElement | null>(null)
 const isLit = ref(false)
 const isPulling = ref(false)
 const pullDistance = ref(0)
+const sway = ref(0)
+const targetPull = ref(0)
+const targetSway = ref(0)
+const startX = ref(0)
 const startY = ref(0)
+const lastX = ref(0)
+const lastY = ref(0)
+const lastMoveTime = ref(0)
+const pullVelocity = ref(0)
+const swayVelocity = ref(0)
+const physicsFrame = ref<number | null>(null)
+const suppressClick = ref(false)
 const profileImage = computed(() => String(runtime.public.profileImage || site.profileImage || ''))
 const cvUrl = computed(() => String(runtime.public.cvUrl || site.cvUrl))
 const { prefersReducedMotion } = useReducedMotion()
+const maxPullDistance = 132
+const ropePath = computed(() => {
+  const bend = sway.value * 0.82
+  const midpoint = 50 + sway.value * 0.46
+  return `M 50 0 C ${50 + bend * 0.22} 28 ${midpoint} 62 ${50 + bend} 100`
+})
+const ropeStyle = computed<Record<string, string>>(() => ({ '--pull-distance': `${pullDistance.value}px` }))
+const handleStyle = computed<Record<string, string>>(() => ({
+  '--handle-y': `${pullDistance.value}px`,
+  '--handle-rotation': `${sway.value}deg`,
+}))
 
 const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 
-const resetPull = () => {
-  if (!isPulling.value) return
-  isPulling.value = false
-  pullDistance.value = 0
-  gsap.to(cordRef.value, { y: 0, rotation: 0, duration: 0.55, ease: 'elastic.out(1, 0.45)' })
-  gsap.to(handleRef.value, { y: 0, rotation: 0, duration: 0.55, ease: 'elastic.out(1, 0.45)' })
+const stopPhysics = () => {
+  if (physicsFrame.value !== null) cancelAnimationFrame(physicsFrame.value)
+  physicsFrame.value = null
+}
+
+const runSpring = () => {
+  stopPhysics()
+  let previous = performance.now()
+  const tick = (now: number) => {
+    const delta = Math.min(0.032, Math.max(0.001, (now - previous) / 1000))
+    previous = now
+    const pullError = targetPull.value - pullDistance.value
+    const swayError = targetSway.value - sway.value
+    pullVelocity.value += pullError * 260 * delta
+    pullVelocity.value *= Math.exp(-24 * delta)
+    swayVelocity.value += swayError * 190 * delta
+    swayVelocity.value *= Math.exp(-18 * delta)
+    pullDistance.value = Math.max(0, Math.min(maxPullDistance, pullDistance.value + pullVelocity.value * delta))
+    sway.value += swayVelocity.value * delta
+
+    const settled = Math.abs(targetPull.value - pullDistance.value) < 0.08
+      && Math.abs(pullVelocity.value) < 0.08
+      && Math.abs(targetSway.value - sway.value) < 0.08
+      && Math.abs(swayVelocity.value) < 0.08
+
+    if (settled && !isPulling.value) {
+      pullDistance.value = targetPull.value
+      sway.value = targetSway.value
+      physicsFrame.value = null
+      return
+    }
+    physicsFrame.value = requestAnimationFrame(tick)
+  }
+  physicsFrame.value = requestAnimationFrame(tick)
+}
+
+const removePointerListeners = () => {
   window.removeEventListener('pointermove', movePull)
   window.removeEventListener('pointerup', endPull)
+  window.removeEventListener('pointercancel', cancelPull)
+}
+
+const resetPull = () => {
+  isPulling.value = false
+  targetPull.value = 0
+  targetSway.value = 0
+  pullVelocity.value = 0
+  swayVelocity.value = 0
+  removePointerListeners()
+  runSpring()
 }
 
 const startPull = (event: PointerEvent) => {
   if (isLit.value) return
+  event.preventDefault()
   isPulling.value = true
+  suppressClick.value = false
+  startX.value = event.clientX
   startY.value = event.clientY
+  lastX.value = event.clientX
+  lastY.value = event.clientY
+  lastMoveTime.value = performance.now()
+  pullVelocity.value = 0
+  swayVelocity.value = 0
+  stopPhysics()
   handleRef.value?.setPointerCapture?.(event.pointerId)
-  window.addEventListener('pointermove', movePull)
+  window.addEventListener('pointermove', movePull, { passive: false })
   window.addEventListener('pointerup', endPull)
+  window.addEventListener('pointercancel', cancelPull)
 }
 
 const movePull = (event: PointerEvent) => {
   if (!isPulling.value || isLit.value) return
-  const distance = Math.max(0, Math.min(126, event.clientY - startY.value))
+  event.preventDefault()
+  const now = performance.now()
+  const elapsed = Math.max(0.008, (now - lastMoveTime.value) / 1000)
+  const distance = Math.max(0, Math.min(maxPullDistance, event.clientY - startY.value))
+  const deltaX = event.clientX - lastX.value
+  const deltaY = event.clientY - lastY.value
+  pullVelocity.value = deltaY / elapsed
   pullDistance.value = distance
-  const sway = Math.sin(distance / 13) * 5
-  gsap.set(cordRef.value, { y: distance, rotation: sway })
-  gsap.set(handleRef.value, { y: distance, rotation: sway * 0.7 })
+  targetPull.value = distance
+  targetSway.value = Math.max(-18, Math.min(18, deltaX * 0.42 + pullVelocity.value * 0.012))
+  sway.value = targetSway.value
+  if (Math.abs(event.clientY - startY.value) > 5 || Math.abs(event.clientX - startX.value) > 5) suppressClick.value = true
+  lastX.value = event.clientX
+  lastY.value = event.clientY
+  lastMoveTime.value = now
 }
 
 const endPull = () => {
+  if (!isPulling.value) return
+  isPulling.value = false
+  removePointerListeners()
   if (pullDistance.value > 58) ignite()
   else resetPull()
+}
+
+const cancelPull = () => {
+  if (!isPulling.value) return
+  isPulling.value = false
+  removePointerListeners()
+  resetPull()
+}
+
+const handleClick = () => {
+  if (suppressClick.value) {
+    suppressClick.value = false
+    return
+  }
+  ignite()
 }
 
 const ignite = () => {
   if (isLit.value) return
   isLit.value = true
   isPulling.value = false
-  window.removeEventListener('pointermove', movePull)
-  window.removeEventListener('pointerup', endPull)
+  targetPull.value = 0
+  targetSway.value = 0
+  removePointerListeners()
+  if (prefersReducedMotion.value) {
+    stopPhysics()
+    pullDistance.value = 0
+    sway.value = 0
+  } else {
+    runSpring()
+  }
 
   if (prefersReducedMotion.value) {
     if (beamRef.value) beamRef.value.style.opacity = '1'
@@ -136,11 +261,7 @@ const ignite = () => {
   }
 
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-  tl.to(cordRef.value, { y: 20, rotation: -3, duration: 0.16, ease: 'power2.in' })
-    .to(cordRef.value, { y: 0, rotation: 0, duration: 0.68, ease: 'elastic.out(1, 0.34)' })
-    .to(handleRef.value, { y: 7, rotation: -2, duration: 0.16 }, '<')
-    .to(handleRef.value, { y: 0, rotation: 0, duration: 0.68, ease: 'elastic.out(1, 0.34)' }, '<0.16')
-    .to([beamRef.value, ambientRef.value], { opacity: 1, scale: 1.08, duration: 0.9, ease: 'power2.out' }, '-=0.42')
+  tl.to([beamRef.value, ambientRef.value], { opacity: 1, scale: 1.08, duration: 0.9, ease: 'power2.out' })
     .fromTo(particlesRef.value?.children ?? [], { opacity: 0, scale: 0, y: 20 }, { opacity: 0.9, scale: 1, y: 0, duration: 0.7, stagger: 0.05, ease: 'back.out(2)' }, '-=0.7')
     .to(contentRef.value, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.5')
     .fromTo(copyRef.value?.children ?? [], { opacity: 0, y: 22, clipPath: 'inset(0 0 100% 0)' }, { opacity: 1, y: 0, clipPath: 'inset(0 0 0% 0)', duration: 0.58, stagger: 0.08, ease: 'power3.out' }, '-=0.46')
@@ -153,11 +274,13 @@ onMounted(() => {
   }
   gsap.set(contentRef.value, { opacity: 0, y: 22 })
   gsap.set([beamRef.value, ambientRef.value, particlesRef.value], { opacity: 0, scale: 0.78 })
+  pullDistance.value = 0
+  sway.value = 0
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('pointermove', movePull)
-  window.removeEventListener('pointerup', endPull)
+  removePointerListeners()
+  stopPhysics()
 })
 </script>
 
@@ -381,16 +504,23 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 24px var(--color-lamp);
 }
 
-.lamp__cord {
+.lamp__rope {
   position: absolute;
   top: 3.25rem;
   left: 50%;
-  width: 2px;
-  height: 7.3rem;
-  transform: translateX(-50%) rotate(var(--cord-sway, 0deg));
-  transform-origin: top center;
-  will-change: transform;
-  background: linear-gradient(var(--color-text-muted), rgba(158, 181, 166, 0.35));
+  width: 100px;
+  height: calc(7.3rem + var(--pull-distance, 0px));
+  transform: translateX(-50%);
+  pointer-events: none;
+  overflow: visible;
+}
+
+.lamp__rope-path {
+  fill: none;
+  stroke: url(#rope-gradient);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .lamp__handle {
@@ -402,11 +532,15 @@ onBeforeUnmount(() => {
   height: 2.6rem;
   padding: 0;
   place-items: center;
-  transform: translateX(-50%);
+  transform: translate(-50%, var(--handle-y, 0px)) rotate(var(--handle-rotation, 0deg));
+  transform-origin: top center;
   border: 1px solid rgba(255, 210, 122, 0.55);
   border-radius: 1rem;
   background: var(--color-lamp);
   box-shadow: 0 0 22px rgba(255, 210, 122, 0.4);
+  touch-action: none;
+  user-select: none;
+  will-change: transform;
 }
 
 .lamp__handle span {
