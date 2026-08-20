@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&family=Sora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
   --color-bg: #050807;
@@ -15,14 +15,16 @@
   --color-lamp-glow: rgba(255, 210, 122, 0.32);
   --shadow-deep: 0 28px 80px rgba(0, 0, 0, 0.42);
   --shadow-primary: 0 0 40px rgba(53, 242, 138, 0.18);
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'Manrope', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --radius-sm: 0.65rem;
   --radius-md: 1rem;
   --radius-lg: 1.5rem;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --type-scale: 1;
+  --motion-enabled: 1;
 }
 
 * {
@@ -40,13 +42,29 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
+  font-size: calc(16px * var(--type-scale));
+  font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button,
-a {
+a,
+input,
+select {
   font: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 button,
@@ -94,6 +112,7 @@ a:focus-visible {
 
 .display-title {
   margin: 0;
+  text-rendering: geometricPrecision;
   color: var(--color-text);
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 7vw, 6.6rem);
@@ -104,6 +123,7 @@ a:focus-visible {
 
 .section-title {
   margin: 0;
+  text-rendering: geometricPrecision;
   color: var(--color-text);
   font-family: var(--font-display);
   font-size: clamp(2rem, 5vw, 4.6rem);
@@ -136,4 +156,12 @@ a:focus-visible {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+html.motion-off *,
+html.motion-off *::before,
+html.motion-off *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
 }

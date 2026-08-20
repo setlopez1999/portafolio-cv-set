@@ -44,13 +44,20 @@ onMounted(() => {
   if (!sectionRef.value || prefersReducedMotion.value) return
   gsap.registerPlugin(ScrollTrigger)
   const context = gsap.context(() => {
-    gsap.from('.project-card', {
-      y: 34,
-      opacity: 0,
-      stagger: 0.1,
-      duration: 0.7,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: sectionRef.value, start: 'top 80%', once: true },
+    gsap.fromTo('.project-group__header',
+      { x: -80, opacity: 0, clipPath: 'inset(0 100% 0 0)' },
+      { x: 0, opacity: 1, clipPath: 'inset(0 0% 0 0)', ease: 'none', scrollTrigger: { trigger: sectionRef.value, start: 'top 88%', end: 'top 56%', scrub: 0.75 } },
+    )
+
+    gsap.utils.toArray<HTMLElement>('.project-card').forEach((card, index) => {
+      const media = card.querySelector<HTMLElement>('.project-card__media')
+      gsap.fromTo(card,
+        { y: 90 + index * 16, rotate: index % 2 === 0 ? -4 : 4, scale: 0.93, clipPath: 'inset(12% 0 0 0 round 1rem)' },
+        { y: 0, rotate: 0, scale: 1, clipPath: 'inset(0% 0 0 0 round 1rem)', ease: 'none', scrollTrigger: { trigger: card, start: 'top 93%', end: 'top 54%', scrub: 0.8 } },
+      )
+      if (media) {
+        gsap.fromTo(media, { scale: 1.18, x: index % 2 === 0 ? -18 : 18 }, { scale: 1, x: 0, ease: 'none', scrollTrigger: { trigger: card, start: 'top 92%', end: 'top 46%', scrub: 0.8 } })
+      }
     })
   }, sectionRef.value)
   return () => context.revert()
@@ -63,9 +70,9 @@ onMounted(() => {
 .project-group__header h3 { margin: 0; color: var(--group-accent); font-family: var(--font-display); font-size: clamp(2.1rem, 5vw, 4rem); font-weight: 500; letter-spacing: -0.06em; }
 .project-group__description { max-width: 500px; margin: 0; color: var(--color-text-muted); line-height: 1.75; }
 .project-group__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1.4rem; }
-.project-card { overflow: hidden; border: 1px solid var(--color-line); border-radius: var(--radius-md); background: linear-gradient(160deg, rgba(255,255,255,0.055), rgba(12, 23, 18, 0.78)); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2); transition: transform 220ms var(--ease-out), border-color 220ms var(--ease-out); }
+.project-card { overflow: hidden; transform-style: preserve-3d; will-change: transform, clip-path; border: 1px solid var(--color-line); border-radius: var(--radius-md); background: linear-gradient(160deg, rgba(255,255,255,0.055), rgba(12, 23, 18, 0.78)); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2); transition: transform 220ms var(--ease-out), border-color 220ms var(--ease-out); }
 .project-card:hover { border-color: color-mix(in srgb, var(--group-accent), transparent 28%); transform: translateY(-5px); }
-.project-card__media { position: relative; height: 170px; overflow: hidden; background: linear-gradient(145deg, color-mix(in srgb, var(--group-accent), transparent 80%), rgba(0,0,0,0.22)); }
+.project-card__media { position: relative; will-change: transform; height: 170px; overflow: hidden; background: linear-gradient(145deg, color-mix(in srgb, var(--group-accent), transparent 80%), rgba(0,0,0,0.22)); }
 .project-card__media img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.86) contrast(1.02); transition: transform 420ms var(--ease-out); }
 .project-card:hover .project-card__media img { transform: scale(1.04); }
 .project-card__placeholder { display: grid; width: 100%; height: 100%; place-items: center; background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--group-accent), transparent 70%), transparent 45%); }

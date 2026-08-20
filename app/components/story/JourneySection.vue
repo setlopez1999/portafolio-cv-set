@@ -34,20 +34,24 @@ onMounted(() => {
   if (!sectionRef.value || prefersReducedMotion.value) return
   gsap.registerPlugin(ScrollTrigger)
   const context = gsap.context(() => {
-    gsap.from('.reveal-item', {
-      y: 30,
-      opacity: 0,
-      stagger: 0.12,
-      duration: 0.7,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: sectionRef.value, start: 'top 72%', once: true },
+    gsap.fromTo('.journey__intro',
+      { x: -80, opacity: 0, clipPath: 'inset(0 100% 0 0)' },
+      { x: 0, opacity: 1, clipPath: 'inset(0 0% 0 0)', ease: 'none', scrollTrigger: { trigger: sectionRef.value, start: 'top 84%', end: 'top 54%', scrub: 0.8 } },
+    )
+
+    gsap.utils.toArray<HTMLElement>('.journey-card').forEach((card, index) => {
+      gsap.fromTo(card,
+        { y: 100 + index * 18, rotate: index % 2 === 0 ? -3 : 3, opacity: 0.35, clipPath: 'inset(16% 0 0 0 round 1rem)' },
+        { y: 0, rotate: 0, opacity: 1, clipPath: 'inset(0% 0 0 0 round 1rem)', ease: 'none', scrollTrigger: { trigger: card, start: 'top 92%', end: 'top 52%', scrub: 0.75 } },
+      )
     })
-    gsap.fromTo(lineRef.value, { scaleY: 0 }, {
-      scaleY: 1,
-      duration: 1.2,
-      ease: 'power2.out',
-      transformOrigin: 'top center',
-      scrollTrigger: { trigger: sectionRef.value, start: 'top 68%', once: true },
+
+    const media = gsap.matchMedia()
+    media.add('(min-width: 761px)', () => {
+      gsap.fromTo(lineRef.value, { scaleX: 0 }, { scaleX: 1, ease: 'none', transformOrigin: 'left center', scrollTrigger: { trigger: sectionRef.value, start: 'top 70%', end: 'bottom 60%', scrub: 0.8 } })
+    })
+    media.add('(max-width: 760px)', () => {
+      gsap.fromTo(lineRef.value, { scaleY: 0 }, { scaleY: 1, ease: 'none', transformOrigin: 'top center', scrollTrigger: { trigger: sectionRef.value, start: 'top 70%', end: 'bottom 60%', scrub: 0.8 } })
     })
   }, sectionRef.value)
   return () => context.revert()
@@ -60,7 +64,7 @@ onMounted(() => {
 .journey__intro .muted-copy { max-width: 560px; margin: 1rem 0 0; }
 .journey__items { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 4rem; }
 .journey__line { position: absolute; top: 18.5rem; left: 50%; width: min(1180px, calc(100% - 5rem)); height: 1px; transform: translateX(-50%); background: var(--color-line); }
-.journey__line span { display: block; width: 100%; height: 100%; transform-origin: left center; background: var(--color-primary); box-shadow: 0 0 18px rgba(53, 242, 138, 0.6); }
+.journey__line span { display: block; width: 100%; height: 100%; transform-origin: left center; will-change: transform; background: var(--color-primary); box-shadow: 0 0 18px rgba(53, 242, 138, 0.6); }
 .journey-card { position: relative; min-height: 220px; padding: 1.5rem; border: 1px solid var(--color-line); border-radius: var(--radius-md); background: rgba(12, 23, 18, 0.66); }
 .journey-card::before { content: ''; position: absolute; top: -0.34rem; left: 1.5rem; width: 0.65rem; height: 0.65rem; border: 2px solid var(--color-bg); border-radius: 50%; background: var(--color-primary); box-shadow: 0 0 16px rgba(53, 242, 138, 0.75); }
 .journey-card__index { color: var(--color-primary); font-family: var(--font-mono); font-size: 0.7rem; }

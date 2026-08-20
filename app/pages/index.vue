@@ -1,5 +1,6 @@
 <template>
   <div class="portfolio-shell">
+    <AppearancePanel />
     <PreloaderScene />
     <LampRevealHero />
     <SectionTabs :items="navigationItems" />
@@ -16,6 +17,7 @@
 </template>
 
 <script setup lang="ts">
+import AppearancePanel from '~/components/settings/AppearancePanel.vue'
 import PreloaderScene from '~/components/experience/PreloaderScene.vue'
 import LampRevealHero from '~/components/experience/LampRevealHero.vue'
 import SectionTabs from '~/components/navigation/SectionTabs.vue'

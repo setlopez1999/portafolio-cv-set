@@ -39,13 +39,21 @@ onMounted(() => {
   if (!sectionRef.value || prefersReducedMotion.value) return
   gsap.registerPlugin(ScrollTrigger)
   const context = gsap.context(() => {
-    gsap.from('.story-block', {
-      y: 42,
-      opacity: 0,
-      stagger: 0.16,
-      duration: 0.8,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: sectionRef.value, start: 'top 70%', once: true },
+    const blocks = gsap.utils.toArray<HTMLElement>('.story-block')
+    blocks.forEach((block, index) => {
+      const media = block.querySelector<HTMLElement>('.story-block__media')
+      const copy = block.querySelector<HTMLElement>('.story-block__copy')
+      const direction = index % 2 === 0 ? -1 : 1
+      if (!media || !copy) return
+
+      gsap.fromTo(media,
+        { clipPath: index % 2 === 0 ? 'inset(0 100% 0 0 round 1.5rem)' : 'inset(0 0 0 100% round 1.5rem)', y: 70, rotate: direction * -2 },
+        { clipPath: 'inset(0 0% 0 0% round 1.5rem)', y: 0, rotate: 0, ease: 'none', scrollTrigger: { trigger: block, start: 'top 86%', end: 'top 42%', scrub: 0.8 } },
+      )
+      gsap.fromTo(copy,
+        { x: direction * 70, opacity: 0.2, filter: 'blur(10px)', clipPath: 'inset(0 0 0 18%)' },
+        { x: 0, opacity: 1, filter: 'blur(0px)', clipPath: 'inset(0 0 0 0%)', ease: 'none', scrollTrigger: { trigger: block, start: 'top 82%', end: 'top 48%', scrub: 0.75 } },
+      )
     })
   }, sectionRef.value)
   return () => context.revert()

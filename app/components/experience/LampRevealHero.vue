@@ -2,6 +2,10 @@
   <section id="inicio" ref="heroRef" class="lamp-hero" :class="{ 'is-lit': isLit }">
     <div class="lamp-hero__grain" aria-hidden="true"></div>
     <div ref="beamRef" class="lamp-hero__beam" aria-hidden="true"></div>
+    <div ref="ambientRef" class="lamp-hero__ambient" aria-hidden="true"></div>
+    <div ref="particlesRef" class="lamp-hero__particles" aria-hidden="true">
+      <span v-for="particle in 8" :key="particle"></span>
+    </div>
     <div class="lamp-hero__aurora" aria-hidden="true"></div>
 
     <div ref="lampRef" class="lamp" :class="{ 'is-pulling': isPulling }">
@@ -13,6 +17,7 @@
         type="button"
         aria-label="Jalar la lámpara para encender la presentación"
         @pointerdown="startPull"
+        @click="ignite"
         @keydown.enter.prevent="ignite"
         @keydown.space.prevent="ignite"
       >
@@ -64,6 +69,8 @@ const site = siteConfig
 const runtime = useRuntimeConfig()
 const heroRef = ref<HTMLElement | null>(null)
 const beamRef = ref<HTMLElement | null>(null)
+const ambientRef = ref<HTMLElement | null>(null)
+const particlesRef = ref<HTMLElement | null>(null)
 const lampRef = ref<HTMLElement | null>(null)
 const cordRef = ref<HTMLElement | null>(null)
 const handleRef = ref<HTMLButtonElement | null>(null)
@@ -83,8 +90,8 @@ const resetPull = () => {
   if (!isPulling.value) return
   isPulling.value = false
   pullDistance.value = 0
-  gsap.to(cordRef.value, { y: 0, duration: 0.45, ease: 'elastic.out(1, 0.45)' })
-  gsap.to(handleRef.value, { y: 0, duration: 0.45, ease: 'elastic.out(1, 0.45)' })
+  gsap.to(cordRef.value, { y: 0, rotation: 0, duration: 0.55, ease: 'elastic.out(1, 0.45)' })
+  gsap.to(handleRef.value, { y: 0, rotation: 0, duration: 0.55, ease: 'elastic.out(1, 0.45)' })
   window.removeEventListener('pointermove', movePull)
   window.removeEventListener('pointerup', endPull)
 }
@@ -102,8 +109,9 @@ const movePull = (event: PointerEvent) => {
   if (!isPulling.value || isLit.value) return
   const distance = Math.max(0, Math.min(126, event.clientY - startY.value))
   pullDistance.value = distance
-  gsap.set(cordRef.value, { y: distance })
-  gsap.set(handleRef.value, { y: distance })
+  const sway = Math.sin(distance / 13) * 5
+  gsap.set(cordRef.value, { y: distance, rotation: sway })
+  gsap.set(handleRef.value, { y: distance, rotation: sway * 0.7 })
 }
 
 const endPull = () => {
@@ -120,18 +128,22 @@ const ignite = () => {
 
   if (prefersReducedMotion.value) {
     if (beamRef.value) beamRef.value.style.opacity = '1'
+    if (ambientRef.value) ambientRef.value.style.opacity = '1'
+    if (particlesRef.value) particlesRef.value.style.opacity = '1'
+    if (contentRef.value) contentRef.value.style.opacity = '1'
     if (copyRef.value) copyRef.value.classList.add('copy--revealed')
     return
   }
 
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-  tl.to(cordRef.value, { y: 18, duration: 0.16, ease: 'power2.in' })
-    .to(cordRef.value, { y: 0, duration: 0.62, ease: 'elastic.out(1, 0.38)' })
-    .to(handleRef.value, { y: 4, duration: 0.16 }, '<')
-    .to(handleRef.value, { y: 0, duration: 0.62, ease: 'elastic.out(1, 0.38)' }, '<0.16')
-    .to(beamRef.value, { opacity: 1, scale: 1, duration: 0.8 }, '-=0.32')
-    .to(contentRef.value, { opacity: 1, y: 0, duration: 0.7 }, '-=0.55')
-    .fromTo(copyRef.value?.children ?? [], { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.48, stagger: 0.06 }, '-=0.4')
+  tl.to(cordRef.value, { y: 20, rotation: -3, duration: 0.16, ease: 'power2.in' })
+    .to(cordRef.value, { y: 0, rotation: 0, duration: 0.68, ease: 'elastic.out(1, 0.34)' })
+    .to(handleRef.value, { y: 7, rotation: -2, duration: 0.16 }, '<')
+    .to(handleRef.value, { y: 0, rotation: 0, duration: 0.68, ease: 'elastic.out(1, 0.34)' }, '<0.16')
+    .to([beamRef.value, ambientRef.value], { opacity: 1, scale: 1.08, duration: 0.9, ease: 'power2.out' }, '-=0.42')
+    .fromTo(particlesRef.value?.children ?? [], { opacity: 0, scale: 0, y: 20 }, { opacity: 0.9, scale: 1, y: 0, duration: 0.7, stagger: 0.05, ease: 'back.out(2)' }, '-=0.7')
+    .to(contentRef.value, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.5')
+    .fromTo(copyRef.value?.children ?? [], { opacity: 0, y: 22, clipPath: 'inset(0 0 100% 0)' }, { opacity: 1, y: 0, clipPath: 'inset(0 0 0% 0)', duration: 0.58, stagger: 0.08, ease: 'power3.out' }, '-=0.46')
 }
 
 onMounted(() => {
@@ -139,8 +151,8 @@ onMounted(() => {
     isLit.value = true
     return
   }
-  gsap.set(contentRef.value, { opacity: 0.64, y: 8 })
-  gsap.set(beamRef.value, { opacity: 0, scale: 0.84 })
+  gsap.set(contentRef.value, { opacity: 0, y: 22 })
+  gsap.set([beamRef.value, ambientRef.value, particlesRef.value], { opacity: 0, scale: 0.78 })
 })
 
 onBeforeUnmount(() => {
@@ -167,6 +179,27 @@ onBeforeUnmount(() => {
   inset: 0;
   pointer-events: none;
 }
+
+.lamp-hero__ambient,
+.lamp-hero__particles,
+.lamp-hero__ambient {
+  z-index: 0;
+  opacity: 0;
+  background: radial-gradient(ellipse at 50% 28%, rgba(255, 218, 139, 0.42), rgba(53, 242, 138, 0.08) 30%, transparent 68%);
+  mix-blend-mode: screen;
+  filter: blur(26px);
+}
+
+.lamp-hero__particles { z-index: 2; opacity: 0; }
+.lamp-hero__particles span { position: absolute; width: 0.34rem; height: 0.34rem; border-radius: 50%; background: var(--color-lamp); box-shadow: 0 0 18px var(--color-lamp); }
+.lamp-hero__particles span:nth-child(1) { left: 23%; top: 34%; }
+.lamp-hero__particles span:nth-child(2) { left: 34%; top: 25%; width: 0.18rem; height: 0.18rem; }
+.lamp-hero__particles span:nth-child(3) { left: 68%; top: 31%; }
+.lamp-hero__particles span:nth-child(4) { left: 76%; top: 43%; width: 0.18rem; height: 0.18rem; }
+.lamp-hero__particles span:nth-child(5) { left: 17%; top: 53%; width: 0.2rem; height: 0.2rem; }
+.lamp-hero__particles span:nth-child(6) { left: 83%; top: 58%; }
+.lamp-hero__particles span:nth-child(7) { left: 29%; top: 67%; width: 0.16rem; height: 0.16rem; }
+.lamp-hero__particles span:nth-child(8) { left: 72%; top: 72%; width: 0.2rem; height: 0.2rem; }
 
 .lamp-hero__grain {
   z-index: 1;
@@ -202,7 +235,7 @@ onBeforeUnmount(() => {
 .profile-orbit {
   position: relative;
   display: grid;
-  width: clamp(150px, 24vw, 240px);
+  width: clamp(118px, 16vw, 180px);
   aspect-ratio: 1;
   place-items: center;
   border-radius: 50%;
@@ -246,7 +279,10 @@ onBeforeUnmount(() => {
 .profile-orbit__photo img {
   width: 100%;
   height: 100%;
+  display: block;
   object-fit: cover;
+  object-position: center 26%;
+  transform: scale(1.04) translateZ(0);
 }
 
 .lamp-hero__copy {
@@ -351,8 +387,9 @@ onBeforeUnmount(() => {
   left: 50%;
   width: 2px;
   height: 7.3rem;
-  transform: translateX(-50%);
+  transform: translateX(-50%) rotate(var(--cord-sway, 0deg));
   transform-origin: top center;
+  will-change: transform;
   background: linear-gradient(var(--color-text-muted), rgba(158, 181, 166, 0.35));
 }
 
