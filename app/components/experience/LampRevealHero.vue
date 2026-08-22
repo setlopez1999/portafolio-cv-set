@@ -291,7 +291,7 @@ onBeforeUnmount(() => {
   min-height: min(920px, 100svh);
   overflow: hidden;
   isolation: isolate;
-  place-items: center;
+  place-items: stretch;
   background: #050807;
 }
 
@@ -347,30 +347,34 @@ onBeforeUnmount(() => {
   position: relative;
   z-index: 3;
   display: grid;
-  justify-items: center;
-  gap: 1.4rem;
+  grid-template-columns: minmax(190px, 0.6fr) minmax(0, 1.4fr);
+  align-items: center;
+  gap: clamp(2rem, 7vw, 7rem);
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
   padding-top: 5rem;
   padding-bottom: 7rem;
-  text-align: center;
+  text-align: left;
   transition: opacity 400ms var(--ease-out);
 }
 
 .profile-orbit {
   position: relative;
   display: grid;
-  width: clamp(118px, 16vw, 180px);
+  width: clamp(180px, 23vw, 280px);
   aspect-ratio: 1;
   place-items: center;
+  justify-self: start;
   border-radius: 50%;
   opacity: 0.84;
-  transform: scale(0.94);
+  transform: translateX(clamp(0rem, 2vw, 2rem)) scale(0.94);
   transition: opacity 900ms var(--ease-out), transform 900ms var(--ease-out), filter 900ms var(--ease-out);
 }
 
 .profile-orbit--lit {
   opacity: 1;
   filter: drop-shadow(0 0 30px var(--color-lamp-glow));
-  transform: scale(1);
+  transform: translateX(clamp(0rem, 2vw, 2rem)) scale(1);
 }
 
 .profile-orbit__ring,
@@ -408,8 +412,28 @@ onBeforeUnmount(() => {
   transform: scale(1.04) translateZ(0);
 }
 
+.profile-orbit::after {
+  position: absolute;
+  right: 0;
+  bottom: -2rem;
+  content: '01 / PROFILE';
+  color: var(--color-primary-soft);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+}
+
+.profile-orbit__photo::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 40%, rgba(5, 8, 7, 0.2));
+  pointer-events: none;
+}
+
 .lamp-hero__copy {
-  max-width: 780px;
+  max-width: 680px;
   opacity: 0;
   transition: opacity 700ms var(--ease-out);
 }
@@ -421,7 +445,7 @@ onBeforeUnmount(() => {
 .hero-role,
 .hero-role-detail,
 .hero-description {
-  margin: 0.7rem auto 0;
+  margin: 0.7rem 0 0;
 }
 
 .hero-role {
@@ -447,7 +471,7 @@ onBeforeUnmount(() => {
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.75rem;
   margin-top: 1.7rem;
 }
@@ -596,7 +620,29 @@ onBeforeUnmount(() => {
   50% { transform: translateY(0.3rem); }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 760px) {
+  .lamp-hero__content {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 2.8rem;
+    width: min(100% - 2rem, 560px);
+    text-align: center;
+  }
+
+  .profile-orbit,
+  .profile-orbit--lit {
+    justify-self: center;
+    transform: scale(0.94);
+  }
+
+  .profile-orbit--lit { transform: scale(1); }
+
+  .lamp-hero__copy { max-width: 560px; }
+  .hero-role,
+  .hero-role-detail,
+  .hero-description { margin-inline: auto; }
+  .hero-actions { justify-content: center; }
+
   .lamp {
     right: 1rem;
     transform: scale(0.82);
