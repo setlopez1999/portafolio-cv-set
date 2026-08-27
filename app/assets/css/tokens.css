@@ -97,6 +97,13 @@ a:focus-visible {
   margin: 0 auto;
 }
 
+/* Paleta de fondo por sección, usada por SectionMorph para el efecto de transición con scroll.
+   #contacto no se toca aquí: ya resuelve a #050807 a través de su propio degradado interno. */
+#trayectoria { background: #071310; }
+#proyectos { background: #0a121c; }
+#sobre-mi { background: #140f0a; }
+#logros { background: #0d1712; }
+
 .section-padding {
   padding: clamp(5rem, 10vw, 9rem) 0;
 }
