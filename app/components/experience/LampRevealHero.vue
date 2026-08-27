@@ -32,10 +32,9 @@
         @pointermove="movePull"
         @pointerup="endPull"
         @pointercancel="cancelPull"
-        @click="handleClick"
         @dragstart.prevent
-        @keydown.enter.prevent="ignite"
-        @keydown.space.prevent="ignite"
+        @keydown.enter.prevent="revealScene"
+        @keydown.space.prevent="revealScene"
       >
         <span></span>
       </button>
@@ -105,7 +104,8 @@ const lastMoveTime = ref(0)
 const pullVelocity = ref(0)
 const swayVelocity = ref(0)
 const physicsFrame = ref<number | null>(null)
-const suppressClick = ref(false)
+const isCommitted = ref(false)
+let flickerTween: gsap.core.Timeline | null = null
 const profileImage = computed(() => String(runtime.public.profileImage || site.profileImage || ''))
 const cvUrl = computed(() => String(runtime.public.cvUrl || site.cvUrl))
 const { prefersReducedMotion } = useReducedMotion()
@@ -128,7 +128,7 @@ const stopPhysics = () => {
   physicsFrame.value = null
 }
 
-const runSpring = () => {
+const runSpring = (onSettled?: () => void) => {
   stopPhysics()
   let previous = performance.now()
   const tick = (now: number) => {
@@ -152,6 +152,7 @@ const runSpring = () => {
       pullDistance.value = targetPull.value
       sway.value = targetSway.value
       physicsFrame.value = null
+      onSettled?.()
       return
     }
     physicsFrame.value = requestAnimationFrame(tick)
@@ -176,10 +177,9 @@ const resetPull = () => {
 }
 
 const startPull = (event: PointerEvent) => {
-  if (isLit.value) return
+  if (isLit.value || isCommitted.value) return
   event.preventDefault()
   isPulling.value = true
-  suppressClick.value = false
   startX.value = event.clientX
   startY.value = event.clientY
   lastX.value = event.clientX
@@ -195,7 +195,7 @@ const startPull = (event: PointerEvent) => {
 }
 
 const movePull = (event: PointerEvent) => {
-  if (!isPulling.value || isLit.value) return
+  if (!isPulling.value || isLit.value || isCommitted.value) return
   event.preventDefault()
   const now = performance.now()
   const elapsed = Math.max(0.008, (now - lastMoveTime.value) / 1000)
@@ -207,7 +207,6 @@ const movePull = (event: PointerEvent) => {
   targetPull.value = distance
   targetSway.value = Math.max(-18, Math.min(18, deltaX * 0.42 + pullVelocity.value * 0.012))
   sway.value = targetSway.value
-  if (Math.abs(event.clientY - startY.value) > 5 || Math.abs(event.clientX - startX.value) > 5) suppressClick.value = true
   lastX.value = event.clientX
   lastY.value = event.clientY
   lastMoveTime.value = now
@@ -217,8 +216,21 @@ const endPull = () => {
   if (!isPulling.value) return
   isPulling.value = false
   removePointerListeners()
-  if (pullDistance.value > 58) ignite()
-  else resetPull()
+  if (pullDistance.value > 58) {
+    isCommitted.value = true
+    targetPull.value = 0
+    targetSway.value = 0
+    if (prefersReducedMotion.value) {
+      stopPhysics()
+      pullDistance.value = 0
+      sway.value = 0
+      revealScene()
+    } else {
+      runSpring(() => revealScene())
+    }
+  } else {
+    resetPull()
+  }
 }
 
 const cancelPull = () => {
@@ -228,28 +240,25 @@ const cancelPull = () => {
   resetPull()
 }
 
-const handleClick = () => {
-  if (suppressClick.value) {
-    suppressClick.value = false
-    return
+const startFlicker = () => {
+  if (prefersReducedMotion.value || isLit.value) return
+  flickerTween = gsap.timeline({ repeat: -1 })
+  for (let i = 0; i < 7; i += 1) {
+    flickerTween
+      .to([beamRef.value, ambientRef.value], { opacity: () => gsap.utils.random(0.06, 0.2), duration: () => gsap.utils.random(0.05, 0.16), ease: 'power1.inOut' })
+      .to([beamRef.value, ambientRef.value], { opacity: 0, duration: () => gsap.utils.random(0.12, 0.32), ease: 'power1.inOut' })
+      .to({}, { duration: () => gsap.utils.random(0.9, 3.2) })
   }
-  ignite()
 }
 
-const ignite = () => {
+const revealScene = () => {
   if (isLit.value) return
+  isCommitted.value = true
   isLit.value = true
   isPulling.value = false
-  targetPull.value = 0
-  targetSway.value = 0
   removePointerListeners()
-  if (prefersReducedMotion.value) {
-    stopPhysics()
-    pullDistance.value = 0
-    sway.value = 0
-  } else {
-    runSpring()
-  }
+  flickerTween?.kill()
+  flickerTween = null
 
   if (prefersReducedMotion.value) {
     if (beamRef.value) beamRef.value.style.opacity = '1'
@@ -259,6 +268,8 @@ const ignite = () => {
     if (copyRef.value) copyRef.value.classList.add('copy--revealed')
     return
   }
+
+  gsap.set([beamRef.value, ambientRef.value], { opacity: 0, scale: 0.78 })
 
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
   tl.to([beamRef.value, ambientRef.value], { opacity: 1, scale: 1.08, duration: 0.9, ease: 'power2.out' })
@@ -276,11 +287,13 @@ onMounted(() => {
   gsap.set([beamRef.value, ambientRef.value, particlesRef.value], { opacity: 0, scale: 0.78 })
   pullDistance.value = 0
   sway.value = 0
+  startFlicker()
 })
 
 onBeforeUnmount(() => {
   removePointerListeners()
   stopPhysics()
+  flickerTween?.kill()
 })
 </script>
 
@@ -366,9 +379,9 @@ onBeforeUnmount(() => {
   place-items: center;
   justify-self: start;
   border-radius: 50%;
-  opacity: 0.84;
+  opacity: 0;
   transform: translateX(clamp(0rem, 2vw, 2rem)) scale(0.94);
-  transition: opacity 900ms var(--ease-out), transform 900ms var(--ease-out), filter 900ms var(--ease-out);
+  transition: opacity 1100ms var(--ease-out), transform 900ms var(--ease-out), filter 900ms var(--ease-out);
 }
 
 .profile-orbit--lit {

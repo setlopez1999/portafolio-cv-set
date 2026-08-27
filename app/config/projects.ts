@@ -16,7 +16,7 @@ export type ProjectGroup = {
   kicker: string
   description: string
   accent: string
-  transition: 'draw' | 'window' | 'pixels' | 'stroke' | 'morph'
+  techIcon: 'flutter' | 'vue' | 'java' | 'design' | 'pencil'
   projects: PortfolioProject[]
 }
 
@@ -27,7 +27,7 @@ export const projectGroups: ProjectGroup[] = [
     kicker: 'Mobile / Android / APIs',
     description: 'Productos móviles pensados para resolver problemas concretos con arquitectura clara e integración de servicios.',
     accent: '#35f28a',
-    transition: 'window',
+    techIcon: 'flutter',
     projects: [
       {
         title: 'MyNouts',
@@ -62,7 +62,7 @@ export const projectGroups: ProjectGroup[] = [
     kicker: 'Frontend / Web / CRM',
     description: 'Interfaces web y experiencias que conectan la presentación visual con los flujos reales del producto.',
     accent: '#bdfccf',
-    transition: 'draw',
+    techIcon: 'vue',
     projects: [
       {
         title: 'NexoPlay',
@@ -95,7 +95,7 @@ export const projectGroups: ProjectGroup[] = [
     kicker: 'Interacción / Lógica / 3D',
     description: 'Experimentos interactivos donde exploro reglas, movimiento, narrativa visual y diseño de experiencias.',
     accent: '#ffd27a',
-    transition: 'pixels',
+    techIcon: 'java',
     projects: [
       {
         title: 'Juego 2D en Java',
@@ -114,7 +114,7 @@ export const projectGroups: ProjectGroup[] = [
     kicker: 'Visual / Producto / Sistema',
     description: 'Ideas visuales, composiciones y decisiones de interfaz que acompañan el desarrollo técnico.',
     accent: '#9be7b1',
-    transition: 'morph',
+    techIcon: 'design',
     projects: [
       {
         title: 'Sistema visual del portafolio',
@@ -131,7 +131,7 @@ export const projectGroups: ProjectGroup[] = [
     kicker: 'Arte digital / Exploración',
     description: 'Una sección preparada para incorporar ilustraciones, estudios visuales y piezas futuras.',
     accent: '#d6a85d',
-    transition: 'stroke',
+    techIcon: 'pencil',
     projects: [
       {
         title: 'Próximamente',

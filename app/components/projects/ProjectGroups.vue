@@ -30,8 +30,8 @@
             v-if="index < groups.length - 1"
             :from-label="group.label"
             :to-label="groups[index + 1].label"
-            :accent="groups[index + 1].accent"
-            :type="groups[index + 1].transition"
+            :accent="group.accent"
+            :icon="group.techIcon"
           />
         </template>
       </div>
