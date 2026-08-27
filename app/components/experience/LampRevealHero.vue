@@ -110,6 +110,14 @@ const profileImage = computed(() => String(runtime.public.profileImage || site.p
 const cvUrl = computed(() => String(runtime.public.cvUrl || site.cvUrl))
 const { prefersReducedMotion } = useReducedMotion()
 const maxPullDistance = 132
+const absoluteMaxPull = 172
+const maxSway = 26
+const applyPullResistance = (raw: number) => {
+  if (raw <= maxPullDistance) return raw
+  const overflow = raw - maxPullDistance
+  const range = absoluteMaxPull - maxPullDistance
+  return maxPullDistance + range * (1 - Math.exp(-overflow / (range * 0.9)))
+}
 const ropePath = computed(() => {
   const bend = sway.value * 0.82
   const midpoint = 50 + sway.value * 0.46
@@ -128,31 +136,45 @@ const stopPhysics = () => {
   physicsFrame.value = null
 }
 
-const runSpring = (onSettled?: () => void) => {
+const SUBSTEP = 1 / 120
+
+const runSpring = (onPullSettled?: () => void) => {
   stopPhysics()
   let previous = performance.now()
+  let pullSettledFired = false
   const tick = (now: number) => {
-    const delta = Math.min(0.032, Math.max(0.001, (now - previous) / 1000))
+    let remaining = Math.min(0.05, Math.max(0.001, (now - previous) / 1000))
     previous = now
-    const pullError = targetPull.value - pullDistance.value
-    const swayError = targetSway.value - sway.value
-    pullVelocity.value += pullError * 260 * delta
-    pullVelocity.value *= Math.exp(-24 * delta)
-    swayVelocity.value += swayError * 190 * delta
-    swayVelocity.value *= Math.exp(-18 * delta)
-    pullDistance.value = Math.max(0, Math.min(maxPullDistance, pullDistance.value + pullVelocity.value * delta))
-    sway.value += swayVelocity.value * delta
 
-    const settled = Math.abs(targetPull.value - pullDistance.value) < 0.08
-      && Math.abs(pullVelocity.value) < 0.08
-      && Math.abs(targetSway.value - sway.value) < 0.08
-      && Math.abs(swayVelocity.value) < 0.08
+    // Se integra en sub-pasos fijos para que el resorte sea estable y visible
+    // incluso cuando el error es grande (p. ej. al soltar desde el estiramiento elástico máximo).
+    while (remaining > 0) {
+      const step = Math.min(SUBSTEP, remaining)
+      remaining -= step
+      const pullError = targetPull.value - pullDistance.value
+      const swayError = targetSway.value - sway.value
+      pullVelocity.value += pullError * 210 * step
+      pullVelocity.value *= Math.exp(-13 * step)
+      swayVelocity.value += swayError * 150 * step
+      swayVelocity.value *= Math.exp(-6.5 * step)
+      pullDistance.value = Math.max(0, Math.min(absoluteMaxPull, pullDistance.value + pullVelocity.value * step))
+      sway.value += swayVelocity.value * step
+    }
 
-    if (settled && !isPulling.value) {
+    const pullSettled = Math.abs(targetPull.value - pullDistance.value) < 0.08 && Math.abs(pullVelocity.value) < 0.08
+    const swaySettled = Math.abs(targetSway.value - sway.value) < 0.08 && Math.abs(swayVelocity.value) < 0.08
+
+    // El encendido se dispara en cuanto la cuerda vuelve a su largo de reposo;
+    // el balanceo lateral puede seguir apagándose de fondo sin bloquear la revelación.
+    if (pullSettled && !pullSettledFired && !isPulling.value) {
+      pullSettledFired = true
+      onPullSettled?.()
+    }
+
+    if (pullSettled && swaySettled && !isPulling.value) {
       pullDistance.value = targetPull.value
       sway.value = targetSway.value
       physicsFrame.value = null
-      onSettled?.()
       return
     }
     physicsFrame.value = requestAnimationFrame(tick)
@@ -185,28 +207,25 @@ const startPull = (event: PointerEvent) => {
   lastX.value = event.clientX
   lastY.value = event.clientY
   lastMoveTime.value = performance.now()
-  pullVelocity.value = 0
-  swayVelocity.value = 0
-  stopPhysics()
   handleRef.value?.setPointerCapture?.(event.pointerId)
   window.addEventListener('pointermove', movePull, { passive: false })
   window.addEventListener('pointerup', endPull)
   window.addEventListener('pointercancel', cancelPull)
+  runSpring()
 }
 
 const movePull = (event: PointerEvent) => {
   if (!isPulling.value || isLit.value || isCommitted.value) return
   event.preventDefault()
+  if (event.clientX === lastX.value && event.clientY === lastY.value) return
   const now = performance.now()
   const elapsed = Math.max(0.008, (now - lastMoveTime.value) / 1000)
-  const distance = Math.max(0, Math.min(maxPullDistance, event.clientY - startY.value))
+  const rawDistance = Math.max(0, event.clientY - startY.value)
   const deltaX = event.clientX - lastX.value
   const deltaY = event.clientY - lastY.value
-  pullVelocity.value = deltaY / elapsed
-  pullDistance.value = distance
-  targetPull.value = distance
-  targetSway.value = Math.max(-18, Math.min(18, deltaX * 0.42 + pullVelocity.value * 0.012))
-  sway.value = targetSway.value
+  const verticalSpeed = deltaY / elapsed
+  targetPull.value = applyPullResistance(rawDistance)
+  targetSway.value = Math.max(-maxSway, Math.min(maxSway, deltaX * 0.5 + verticalSpeed * 0.012))
   lastX.value = event.clientX
   lastY.value = event.clientY
   lastMoveTime.value = now
